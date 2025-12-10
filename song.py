@@ -29,7 +29,6 @@ def type_line(color, text, speed=0.05):
     print()  # next line
     time.sleep(1.5)
 
-# Print each line with typing animation
 for color, line in lyrics:
     type_line(color, line)
 

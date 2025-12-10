@@ -11,16 +11,20 @@ tip_ids = [4, 8, 12, 16, 20]
 
 while True:
     success, img = cap.read()
+    if not success:
+        break
+
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(img_rgb)
 
     lm_list = []
     if results.multi_hand_landmarks:
         for handLms in results.multi_hand_landmarks:
+            h, w, _ = img.shape
             for id, lm in enumerate(handLms.landmark):
-                h, w, _ = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lm_list.append((id, cx, cy))
+
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS)
 
     if lm_list:
@@ -32,7 +36,7 @@ while True:
         else:
             fingers.append(0)
 
-        # 4 Fingers
+        # Other 4 fingers
         for id in range(1, 5):
             if lm_list[tip_ids[id]][2] < lm_list[tip_ids[id] - 2][2]:
                 fingers.append(1)
@@ -41,10 +45,16 @@ while True:
 
         total_fingers = fingers.count(1)
 
-        cv2.putText(img, f'Fingers: {total_fingers}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX,
-                    1.5, (255, 0, 0), 3)
+        cv2.putText(img, f'Fingers: {total_fingers}', (10, 70),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 3)
 
     cv2.imshow("Hand Gesture", img)
+
+    # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    cv2.imcount('hand gesture',img)
+
+# Cleanup
+cap.release()
+cv2.destroyAllWindows()
+"🎵 Song Ended. Thank you for watching! 🎵"
